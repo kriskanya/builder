@@ -4,6 +4,7 @@ var users = global.nss.db.collection('users');
 var trees = global.nss.db.collection('trees');
 var Mongo = require('mongodb');  //importing node module
 var treeHelper = require('../lib/tree-helper');  //importing a file that I wrote; treehelper is an object with property 'getClass'
+var _ = require('lodash');
 
 exports.index = (req, res)=>{
   res.render('game/index', {title: 'Builder'});
@@ -52,4 +53,14 @@ exports.forest = (req, res)=>{
 };
 
 exports.grow = (req, res)=>{
+  var treeId = Mongo.ObjectID(req.body.treeId);
+  trees.findOne({_id:treeId}, (e, tree)=>{
+    tree.height += _.random(0, 2);  //takes the height of the tree and adds a random value to it
+    tree.isHealthy = _.random(0, 100) !== 70;
+    trees.save(tree, (e, tree)=>{  //if the object has an id already, it will simply update it
+      res.render('game/tree', {tree: tree, treeHelper:treeHelper}, (e, html)=>{ //function that gets called when it's finished rendering; (e, html) sends the html back to javascript
+        res.send(html);  //sends the html back to the browser
+      });
+    });
+  });
 };
