@@ -1,3 +1,5 @@
-.tree(data-id=tree._id.toString(), class=treeHelper.getClass(tree.height))
-  .height= tree.height
-  .health= tree.isHealthy
+.tree-container
+  .tree(data-id=tree._id.toString(), class=treeHelper.getClass(tree.height), class=tree.isHealthy ? 'alive' : 'dead')
+    .height= tree.height
+    .health= tree.isHealthy
+  button.button.button-action.chop Chop!

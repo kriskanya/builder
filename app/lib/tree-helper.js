@@ -1,6 +1,9 @@
 'use strict';
 
 function getClass(height){
+  if(height === -1){
+    return 'stump';
+  }
   if(height === 0){
     return 'seed';
   }

@@ -53,14 +53,44 @@ exports.forest = (req, res)=>{
 };
 
 exports.grow = (req, res)=>{
-  var treeId = Mongo.ObjectID(req.body.treeId);
+  var treeId = Mongo.ObjectID(req.params.treeId);
   trees.findOne({_id:treeId}, (e, tree)=>{
     tree.height += _.random(0, 2);  //takes the height of the tree and adds a random value to it
     tree.isHealthy = _.random(0, 100) !== 70;
-    trees.save(tree, (e, tree)=>{  //if the object has an id already, it will simply update it
+    trees.save(tree, (e, count)=>{  //if the object has an id already, it will simply update it; it will give you back the count of the thing you updated
       res.render('game/tree', {tree: tree, treeHelper:treeHelper}, (e, html)=>{ //function that gets called when it's finished rendering; (e, html) sends the html back to javascript
         res.send(html);  //sends the html back to the browser
       });
     });
+  });
+};
+
+exports.chop = (req, res)=>{
+  var treeId = Mongo.ObjectID(req.params.treeId);
+
+  trees.findOne({_id: treeId}, (e, tree)=>{
+    users.findOne({_id: tree.userId}, (e, user)=>{
+      user.wood += tree.height / 2;  //changed one of the value of users, and then saved it again in the database
+      users.save(user, ()=>{});
+      tree.height = -1;
+      trees.save(tree, ()=>{
+        res.render('game/tree', {tree:tree, treeHelper: treeHelper}, (e, html)=>{
+          res.send({user:user, treeHTML: html});
+        });
+      });
+    });
+  });
+};
+
+exports.sellWood = (req, res)=>{
+  var userId = Mongo.ObjectID(req.params.userId);
+  console.log('sellwood to andrew');
+
+  users.findOne({_id: userId}, (err, user)=>{
+    if(user.wood > 4){
+      user.wood -= 5;
+      user.cash++;
+    }
+    users.save(user, ()=>res.send(user));
   });
 };
